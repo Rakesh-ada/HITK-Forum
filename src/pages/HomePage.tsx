@@ -6,8 +6,7 @@ import {
   Clock, 
   Filter, 
   ArrowUpDown, 
-  Award,
-  PlusCircle
+  Award
 } from "lucide-react";
 import { PostCard } from "../components/post/PostCard";
 import { Button } from "../components/ui/Button";
@@ -68,23 +67,6 @@ export const HomePage = () => {
   return (
     <div>
       <div className="mb-4 flex flex-col space-y-4">
-        {/* Create post card */}
-        {user && (
-          <div className="bg-white dark:bg-neutral-800 rounded-md shadow-sm p-3 border border-neutral-200 dark:border-neutral-700">
-            <Link to="/submit" className="flex items-center">
-              <img 
-                src={user.avatarUrl}
-                alt={user.username}
-                className="h-8 w-8 rounded-full mr-2"
-              />
-              <div className="flex-1 bg-neutral-100 dark:bg-neutral-700 rounded-full px-4 py-2 text-neutral-500 dark:text-neutral-400 text-sm hover:bg-neutral-200 dark:hover:bg-neutral-600 transition-colors">
-                Create Post
-              </div>
-              <PlusCircle size={20} className="ml-2 text-neutral-400" />
-            </Link>
-          </div>
-        )}
-        
         {/* Sort options */}
         <div className="bg-white dark:bg-neutral-800 rounded-md shadow-sm border border-neutral-200 dark:border-neutral-700 p-3">
           <div className="flex overflow-x-auto hide-scrollbar">
