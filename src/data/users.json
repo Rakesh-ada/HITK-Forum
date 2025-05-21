@@ -1,0 +1,12 @@
+[
+  {
+    "id": "user-1",
+    "username": "spez",
+    "email": "spez@example.com",
+    "password": "password123",
+    "avatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=spez",
+    "createdAt": "2005-06-23T18:24:00.000Z",
+    "karma": 185463,
+    "emailVerified": true
+  }
+] 

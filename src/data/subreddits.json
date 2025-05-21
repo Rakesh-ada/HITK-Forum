@@ -1,0 +1,46 @@
+[
+  {
+    "id": "sub-1",
+    "name": "askreddit",
+    "displayName": "AskReddit",
+    "description": "Ask Reddit...anything!",
+    "createdAt": "2008-01-25T00:00:00.000Z",
+    "subscribers": 42069420,
+    "iconUrl": "https://images.pexels.com/photos/5308281/pexels-photo-5308281.jpeg?auto=compress&cs=tinysrgb&w=300",
+    "bannerUrl": "https://images.pexels.com/photos/5308281/pexels-photo-5308281.jpeg?auto=compress",
+    "isNsfw": false
+  },
+  {
+    "id": "sub-2",
+    "name": "pics",
+    "displayName": "Pics",
+    "description": "A place for pictures and photographs.",
+    "createdAt": "2008-01-25T00:00:00.000Z",
+    "subscribers": 29472123,
+    "iconUrl": "https://images.pexels.com/photos/1000366/pexels-photo-1000366.jpeg?auto=compress&cs=tinysrgb&w=300",
+    "bannerUrl": "https://images.pexels.com/photos/1000366/pexels-photo-1000366.jpeg?auto=compress",
+    "isNsfw": false
+  },
+  {
+    "id": "sub-3",
+    "name": "funny",
+    "displayName": "Funny",
+    "description": "Welcome to r/Funny, Reddit's home for humor.",
+    "createdAt": "2008-01-25T00:00:00.000Z",
+    "subscribers": 25123456,
+    "iconUrl": "https://images.pexels.com/photos/1576937/pexels-photo-1576937.jpeg?auto=compress&cs=tinysrgb&w=300",
+    "bannerUrl": "https://images.pexels.com/photos/1576937/pexels-photo-1576937.jpeg?auto=compress",
+    "isNsfw": false
+  },
+  {
+    "id": "sub-4",
+    "name": "news",
+    "displayName": "News",
+    "description": "The place for news articles about current events.",
+    "createdAt": "2008-01-25T00:00:00.000Z",
+    "subscribers": 24123456,
+    "iconUrl": "https://images.pexels.com/photos/518543/pexels-photo-518543.jpeg?auto=compress&cs=tinysrgb&w=300",
+    "bannerUrl": "https://images.pexels.com/photos/518543/pexels-photo-518543.jpeg?auto=compress",
+    "isNsfw": false
+  }
+] 
