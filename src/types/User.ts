@@ -6,4 +6,5 @@ export interface User {
   avatarUrl: string;
   createdAt: string;
   karma: number;
+  emailVerified?: boolean;
 }

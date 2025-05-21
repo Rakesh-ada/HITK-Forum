@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Comment } from "../../types/Comment";
 import { CommentItem } from "./CommentItem";
 import { Button } from "../ui/Button";
@@ -12,13 +12,24 @@ interface CommentListProps {
 export const CommentList = ({ comments, postId }: CommentListProps) => {
   const [sortBy, setSortBy] = useState<'best' | 'new' | 'controversial' | 'old'>('best');
   const [loadAll, setLoadAll] = useState(false);
+  const [localComments, setLocalComments] = useState<Comment[]>(comments);
+  
+  // Update local comments when props change
+  useEffect(() => {
+    setLocalComments(comments);
+  }, [comments]);
   
   // Get top-level comments (no parentId)
-  const topLevelComments = comments.filter(comment => !comment.parentId);
+  const topLevelComments = localComments.filter(comment => !comment.parentId);
   
   // Get replies for a specific comment
   const getReplies = (commentId: string) => {
-    return comments.filter(comment => comment.parentId === commentId);
+    return localComments.filter(comment => comment.parentId === commentId);
+  };
+  
+  // Handle newly added comment or reply
+  const handleCommentAdded = (newComment: Comment) => {
+    setLocalComments(prev => [...prev, newComment]);
   };
   
   // Sort comments based on selected sort method
@@ -72,7 +83,8 @@ export const CommentList = ({ comments, postId }: CommentListProps) => {
               comment={comment} 
               replies={getReplies(comment.id)} 
               postId={postId}
-              allComments={comments}
+              allComments={localComments}
+              onReplyAdded={handleCommentAdded}
             />
           ))}
         </div>

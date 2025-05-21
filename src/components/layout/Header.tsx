@@ -18,7 +18,7 @@ export const Header = () => {
   };
   
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-neutral-950 shadow-md border-b border-neutral-800">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-neutral-950/80 backdrop-blur-md shadow-sm border-b border-neutral-800/50">
       <div className="container mx-auto px-4">
         <div className="flex items-center h-16">
           {/* Logo */}
@@ -37,11 +37,11 @@ export const Header = () => {
           </div>
           
           {/* Search bar */}
-          <div className="relative w-full max-w-md">
+          <div className="relative w-full max-w-md ml-[150px]">
             <input
               type="text"
               placeholder="Search posts..."
-              className="w-full rounded-full bg-neutral-800 border border-neutral-700 text-neutral-200 pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-neutral-500"
+              className="w-full rounded-full bg-neutral-800/80 border border-neutral-700/70 text-neutral-200 pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-neutral-500"
             />
             <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500" />
           </div>
@@ -62,7 +62,7 @@ export const Header = () => {
             <div className="ml-4">
               {user ? (
                 <div className="flex items-center">
-                  <Link to={`/user/${user.username}`} className="flex items-center hover:bg-neutral-800 rounded-full p-1.5">
+                  <Link to={`/user/${user.username}`} className="flex items-center hover:bg-neutral-800/70 rounded-full p-1.5">
                     <img 
                       src={user.avatarUrl}
                       alt={user.username}
@@ -72,7 +72,7 @@ export const Header = () => {
                   </Link>
                   <button 
                     onClick={handleLogout}
-                    className="p-2 hover:bg-neutral-800 rounded-full ml-2 text-neutral-400 hover:text-neutral-200"
+                    className="p-2 hover:bg-neutral-800/70 rounded-full ml-2 text-neutral-400 hover:text-neutral-200"
                   >
                     <LogOut size={20} />
                   </button>
@@ -83,14 +83,14 @@ export const Header = () => {
                     onClick={() => navigate("/login")}
                     variant="outline"
                     size="sm"
-                    className="text-neutral-300 border-neutral-700 hover:bg-neutral-800"
+                    className="text-white border-neutral-700 hover:bg-neutral-800/70 transition-all duration-200 font-medium px-5 py-2 rounded-full hover:border-primary-500"
                   >
                     Log In
                   </Button>
                   <Button
                     onClick={() => navigate("/register")}
                     size="sm"
-                    className="bg-primary-500 hover:bg-primary-600 text-white"
+                    className="bg-primary-500 hover:bg-primary-600 text-white shadow-md shadow-primary-500/20 transition-all duration-200 font-medium px-5 py-2 rounded-full hover:shadow-lg hover:shadow-primary-500/30"
                   >
                     Sign Up
                   </Button>
@@ -103,14 +103,14 @@ export const Header = () => {
       
       {/* Mobile menu */}
       {showMobileMenu && (
-        <div className="md:hidden border-t border-neutral-800">
+        <div className="md:hidden border-t border-neutral-800/50 bg-neutral-950/95">
           <div className="container mx-auto p-4">
             <div className="space-y-4">
               <div className="relative">
                 <input
                   type="text"
                   placeholder="Search posts..."
-                  className="w-full rounded-full bg-neutral-800 border border-neutral-700 text-neutral-200 pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-neutral-500"
+                  className="w-full rounded-full bg-neutral-800/80 border border-neutral-700/70 text-neutral-200 pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-neutral-500"
                 />
                 <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500" />
               </div>
@@ -118,7 +118,7 @@ export const Header = () => {
               {user && (
                 <Link 
                   to="/submit"
-                  className="flex items-center p-2 hover:bg-neutral-800 rounded-md text-neutral-300"
+                  className="flex items-center p-2 hover:bg-neutral-800/70 rounded-md text-neutral-300"
                   onClick={() => setShowMobileMenu(false)}
                 >
                   <PlusCircle size={18} className="mr-2 text-primary-500" />
@@ -130,7 +130,7 @@ export const Header = () => {
                 <>
                   <Link 
                     to={`/user/${user.username}`}
-                    className="flex items-center p-2 hover:bg-neutral-800 rounded-md text-neutral-300"
+                    className="flex items-center p-2 hover:bg-neutral-800/70 rounded-md text-neutral-300"
                     onClick={() => setShowMobileMenu(false)}
                   >
                     <User size={18} className="mr-2" />
@@ -138,7 +138,7 @@ export const Header = () => {
                   </Link>
                   <button 
                     onClick={handleLogout}
-                    className="flex items-center w-full text-left p-2 text-red-400 hover:bg-neutral-800 rounded-md"
+                    className="flex items-center w-full text-left p-2 text-red-400 hover:bg-neutral-800/70 rounded-md"
                   >
                     <LogOut size={18} className="mr-2" />
                     Log Out
@@ -153,7 +153,7 @@ export const Header = () => {
                     }}
                     variant="outline"
                     fullWidth
-                    className="text-neutral-300 border-neutral-700 hover:bg-neutral-800"
+                    className="text-white border-neutral-700 hover:bg-neutral-800/70 transition-all duration-200 font-medium py-2 rounded-full hover:border-primary-500"
                   >
                     Log In
                   </Button>
@@ -163,7 +163,7 @@ export const Header = () => {
                       setShowMobileMenu(false);
                     }}
                     fullWidth
-                    className="bg-primary-500 hover:bg-primary-600 text-white"
+                    className="bg-primary-500 hover:bg-primary-600 text-white shadow-md shadow-primary-500/20 transition-all duration-200 font-medium py-2 rounded-full hover:shadow-lg hover:shadow-primary-500/30"
                   >
                     Sign Up
                   </Button>

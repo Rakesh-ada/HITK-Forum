@@ -4,7 +4,7 @@ import {
   Users, 
   Calendar, 
   Flame, 
-  TrendingUp, 
+  TrendingUp,
   Clock, 
   Award,
   Bell,
@@ -42,19 +42,41 @@ export const SubredditPage = () => {
   const sortedPosts = [...posts].sort((a, b) => {
     switch (sortBy) {
       case 'hot':
-        // Sort by a combination of upvotes and recency
-        const aScore = (a.upvotes - a.downvotes) / (1 + Date.now() - new Date(a.createdAt).getTime());
-        const bScore = (b.upvotes - b.downvotes) / (1 + Date.now() - new Date(b.createdAt).getTime());
+        // Hot: Balance of upvotes and recency (popular overall)
+        // Higher weight to upvotes but still consider recency
+        const aHours = (Date.now() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60);
+        const bHours = (Date.now() - new Date(b.createdAt).getTime()) / (1000 * 60 * 60);
+        
+        // Score decreases as post gets older, but not as quickly as "rising"
+        const aScore = a.upvotes / Math.pow(aHours + 2, 1.5);
+        const bScore = b.upvotes / Math.pow(bHours + 2, 1.5);
+        
         return bScore - aScore;
       case 'new':
-        // Sort by creation date, newest first
+        // New: Purely chronological, newest first
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       case 'top':
-        // Sort by total upvotes
-        return (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes);
+        // Top: Simply the highest upvoted posts
+        return b.upvotes - a.upvotes;
       case 'rising':
-        // Sort by recent upvotes (you'd likely use a separate metric in a real app)
-        return (b.upvotes / Math.max(1, b.downvotes)) - (a.upvotes / Math.max(1, a.downvotes));
+        // Rising: Posts gaining momentum quickly (high upvotes relative to age)
+        // Calculate post age in hours
+        const aRisingHours = (Date.now() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60);
+        const bRisingHours = (Date.now() - new Date(b.createdAt).getTime()) / (1000 * 60 * 60);
+        
+        // Only consider posts from the last 24 hours with a minimum of upvotes
+        const aIsRising = aRisingHours <= 24 && a.upvotes >= 5;
+        const bIsRising = bRisingHours <= 24 && b.upvotes >= 5;
+        
+        // If both are rising or neither is rising, use upvotes per hour
+        if (aIsRising === bIsRising) {
+          const aRate = a.upvotes / (aRisingHours || 0.5); // Avoid division by zero
+          const bRate = b.upvotes / (bRisingHours || 0.5);
+          return bRate - aRate;
+        }
+        
+        // Prioritize rising posts
+        return aIsRising ? -1 : 1;
       default:
         return 0;
     }

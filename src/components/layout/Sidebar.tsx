@@ -52,7 +52,7 @@ export const Sidebar = () => {
                 )}
                 <span>r/{community.name}</span>
                 <span className="ml-auto text-xs text-neutral-500">{formatSubscriberCount(community.subscribers)}</span>
-              </Link>
+          </Link>
             ))}
           </div>
         </div>

@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   Flame, 
-  TrendingUp, 
   Clock, 
   Filter, 
-  ArrowUpDown, 
-  Award
+  Award,
+  TrendingUp 
 } from "lucide-react";
 import { PostCard } from "../components/post/PostCard";
 import { Button } from "../components/ui/Button";
@@ -29,31 +28,50 @@ export const HomePage = () => {
       
       switch (sortBy) {
         case 'hot':
-          // Sort by a combination of upvotes and recency
+          // Hot: Balance of upvotes and recency (popular overall)
           sortedPosts.sort((a, b) => {
-            const aScore = (a.upvotes - a.downvotes) / (1 + Date.now() - new Date(a.createdAt).getTime());
-            const bScore = (b.upvotes - b.downvotes) / (1 + Date.now() - new Date(b.createdAt).getTime());
+            // Higher weight to upvotes but still consider recency
+            const aHours = (Date.now() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60);
+            const bHours = (Date.now() - new Date(b.createdAt).getTime()) / (1000 * 60 * 60);
+            
+            // Score decreases as post gets older, but not as quickly as "rising"
+            const aScore = a.upvotes / Math.pow(aHours + 2, 1.5);
+            const bScore = b.upvotes / Math.pow(bHours + 2, 1.5);
+            
             return bScore - aScore;
           });
           break;
         case 'new':
-          // Sort by creation date, newest first
+          // New: Purely chronological, newest first
           sortedPosts.sort((a, b) => 
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
           break;
         case 'top':
-          // Sort by total upvotes
-          sortedPosts.sort((a, b) => 
-            (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes)
-          );
+          // Top: Simply the highest upvoted posts
+          sortedPosts.sort((a, b) => b.upvotes - a.upvotes);
           break;
         case 'rising':
-          // Sort by recent upvotes (you'd likely use a separate metric in a real app)
-          sortedPosts.sort((a, b) => 
-            (b.upvotes / Math.max(1, b.downvotes)) - 
-            (a.upvotes / Math.max(1, a.downvotes))
-          );
+          // Rising: Posts gaining momentum quickly (high upvotes relative to age)
+          sortedPosts.sort((a, b) => {
+            // Calculate post age in hours
+            const aHours = (Date.now() - new Date(a.createdAt).getTime()) / (1000 * 60 * 60);
+            const bHours = (Date.now() - new Date(b.createdAt).getTime()) / (1000 * 60 * 60);
+            
+            // Only consider posts from the last 24 hours with a minimum of upvotes
+            const aIsRising = aHours <= 24 && a.upvotes >= 5;
+            const bIsRising = bHours <= 24 && b.upvotes >= 5;
+            
+            // If both are rising or neither is rising, use upvotes per hour
+            if (aIsRising === bIsRising) {
+              const aRate = a.upvotes / (aHours || 0.5); // Avoid division by zero
+              const bRate = b.upvotes / (bHours || 0.5);
+              return bRate - aRate;
+            }
+            
+            // Prioritize rising posts
+            return aIsRising ? -1 : 1;
+          });
           break;
       }
       

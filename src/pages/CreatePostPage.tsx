@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Link as LinkIcon, Image, FileText, AlertTriangle } from "lucide-react";
 import { useAuth } from "../hooks/useAuth";
-import { dummySubreddits } from "../data/dummyData";
+import { dummySubreddits, addPost } from "../data/dummyData";
 
 export const CreatePostPage = () => {
   const { user } = useAuth();
@@ -46,27 +46,35 @@ export const CreatePostPage = () => {
       return;
     }
     
+    if (!user) {
+      setError("You must be logged in to create a post");
+      return;
+    }
+    
     setError("");
     setIsSubmitting(true);
     
-    // Simulate API call with a delay
-    setTimeout(() => {
-      setIsSubmitting(false);
-      
-      // In a real app, we would handle the API call to create the post
-      console.log("Creating post:", {
+    try {
+      // Create post with our storage service
+      const newPost = addPost({
         title,
         content,
         subreddit,
-        postType,
+        author: user.username,
+        authorId: user.id,
         imageUrl: postType === "image" ? imageUrl : undefined,
-        linkUrl: postType === "link" ? linkUrl : undefined,
-        author: user?.username,
+        link: postType === "link" ? linkUrl : undefined,
       });
+      
+      console.log("Post created:", newPost);
       
       // Navigate to the subreddit page
       navigate(`/r/${subreddit}`);
-    }, 1500);
+    } catch (error) {
+      console.error("Error creating post:", error);
+      setError("Failed to create post. Please try again.");
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -77,193 +85,193 @@ export const CreatePostPage = () => {
           <div className="bg-neutral-900 rounded-lg shadow-lg border border-neutral-800 overflow-hidden">
             <div className="px-6 py-4 border-b border-neutral-800">
               <h1 className="text-xl font-bold text-white">Create a post</h1>
-            </div>
-            
+        </div>
+        
             <div className="p-6">
-              {error && (
+          {error && (
                 <div className="mb-4 p-3 bg-red-900/30 text-red-400 rounded-md text-sm border border-red-800/50">
-                  {error}
-                </div>
-              )}
-              
+              {error}
+            </div>
+          )}
+          
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Select community */}
-                <div>
+            {/* Select community */}
+            <div>
                   <label htmlFor="subreddit" className="block text-sm font-medium mb-2 text-neutral-300">
-                    Community
-                  </label>
+                Community
+              </label>
                   <div className="relative">
-                    <select
-                      id="subreddit"
-                      value={subreddit}
-                      onChange={(e) => setSubreddit(e.target.value)}
+              <select
+                id="subreddit"
+                value={subreddit}
+                onChange={(e) => setSubreddit(e.target.value)}
                       className="w-full px-4 py-3 border border-neutral-700 rounded-md bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent appearance-none"
-                      required
-                    >
-                      <option value="">Select a community</option>
-                      {dummySubreddits.map((sub) => (
-                        <option key={sub.id} value={sub.name}>
-                          r/{sub.name}
-                        </option>
-                      ))}
-                    </select>
+                required
+              >
+                <option value="">Select a community</option>
+                {dummySubreddits.map((sub) => (
+                  <option key={sub.id} value={sub.name}>
+                    r/{sub.name}
+                  </option>
+                ))}
+              </select>
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                       <svg className="h-5 w-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
                   </div>
-                </div>
-                
-                {/* Post type tabs */}
-                <div className="flex border-b border-neutral-700">
-                  <button
-                    type="button"
-                    onClick={() => setPostType("text")}
-                    className={`flex items-center py-3 px-6 ${
-                      postType === "text"
-                        ? "border-b-2 border-primary-500 text-primary-500"
-                        : "text-neutral-400 hover:text-neutral-200"
-                    }`}
-                  >
-                    <FileText size={18} className="mr-2" />
-                    Post
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={() => setPostType("image")}
-                    className={`flex items-center py-3 px-6 ${
-                      postType === "image"
-                        ? "border-b-2 border-primary-500 text-primary-500"
-                        : "text-neutral-400 hover:text-neutral-200"
-                    }`}
-                  >
-                    <Image size={18} className="mr-2" />
-                    Image
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={() => setPostType("link")}
-                    className={`flex items-center py-3 px-6 ${
-                      postType === "link"
-                        ? "border-b-2 border-primary-500 text-primary-500"
-                        : "text-neutral-400 hover:text-neutral-200"
-                    }`}
-                  >
-                    <LinkIcon size={18} className="mr-2" />
-                    Link
-                  </button>
-                </div>
-                
-                {/* Title */}
-                <div>
-                  <label htmlFor="title" className="block text-sm font-medium mb-2 text-neutral-300">
-                    Title
-                  </label>
-                  <input
-                    id="title"
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-3 border border-neutral-700 rounded-md bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder-neutral-500"
-                    placeholder="Title"
-                    maxLength={300}
-                    required
-                  />
-                  <div className="text-xs text-neutral-500 mt-2 text-right">
-                    {title.length}/300
-                  </div>
-                </div>
-                
-                {/* Content based on post type */}
-                {postType === "text" && (
-                  <div>
-                    <label htmlFor="content" className="block text-sm font-medium mb-2 text-neutral-300">
-                      Text (optional)
-                    </label>
-                    <textarea
-                      id="content"
-                      value={content}
-                      onChange={(e) => setContent(e.target.value)}
-                      className="w-full px-4 py-3 border border-neutral-700 rounded-md bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder-neutral-500"
-                      placeholder="Text (optional)"
-                      rows={8}
-                    />
-                  </div>
-                )}
-                
-                {postType === "image" && (
-                  <div>
-                    <label htmlFor="imageUrl" className="block text-sm font-medium mb-2 text-neutral-300">
-                      Image URL
-                    </label>
-                    <input
-                      id="imageUrl"
-                      type="url"
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      className="w-full px-4 py-3 border border-neutral-700 rounded-md bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder-neutral-500"
-                      placeholder="https://example.com/image.jpg"
-                      required
-                    />
-                    
-                    {imageUrl && (
-                      <div className="mt-3 p-3 border border-neutral-700 rounded-md bg-neutral-800">
-                        <img 
-                          src={imageUrl} 
-                          alt="Preview" 
-                          className="max-h-64 mx-auto object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=Invalid+Image+URL';
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-                
-                {postType === "link" && (
-                  <div>
-                    <label htmlFor="linkUrl" className="block text-sm font-medium mb-2 text-neutral-300">
-                      URL
-                    </label>
-                    <input
-                      id="linkUrl"
-                      type="url"
-                      value={linkUrl}
-                      onChange={(e) => setLinkUrl(e.target.value)}
-                      className="w-full px-4 py-3 border border-neutral-700 rounded-md bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder-neutral-500"
-                      placeholder="https://example.com"
-                      required
-                    />
-                  </div>
-                )}
-                
-                <div className="pt-4 flex justify-end space-x-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => navigate("/")}
-                    className="bg-transparent border-neutral-600 text-neutral-300 hover:bg-neutral-800"
-                  >
-                    Cancel
-                  </Button>
-                  
-                  <Button
-                    type="submit"
-                    isLoading={isSubmitting}
-                    className="bg-primary-500 hover:bg-primary-600 text-white"
-                  >
-                    Post
-                  </Button>
-                </div>
-              </form>
             </div>
-          </div>
+            
+            {/* Post type tabs */}
+                <div className="flex border-b border-neutral-700">
+              <button
+                type="button"
+                onClick={() => setPostType("text")}
+                    className={`flex items-center py-3 px-6 ${
+                  postType === "text"
+                        ? "border-b-2 border-primary-500 text-primary-500"
+                        : "text-neutral-400 hover:text-neutral-200"
+                }`}
+              >
+                <FileText size={18} className="mr-2" />
+                Post
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setPostType("image")}
+                    className={`flex items-center py-3 px-6 ${
+                  postType === "image"
+                        ? "border-b-2 border-primary-500 text-primary-500"
+                        : "text-neutral-400 hover:text-neutral-200"
+                }`}
+              >
+                <Image size={18} className="mr-2" />
+                Image
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setPostType("link")}
+                    className={`flex items-center py-3 px-6 ${
+                  postType === "link"
+                        ? "border-b-2 border-primary-500 text-primary-500"
+                        : "text-neutral-400 hover:text-neutral-200"
+                }`}
+              >
+                    <LinkIcon size={18} className="mr-2" />
+                Link
+              </button>
+            </div>
+            
+            {/* Title */}
+            <div>
+                  <label htmlFor="title" className="block text-sm font-medium mb-2 text-neutral-300">
+                Title
+              </label>
+              <input
+                id="title"
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                    className="w-full px-4 py-3 border border-neutral-700 rounded-md bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder-neutral-500"
+                placeholder="Title"
+                maxLength={300}
+                required
+              />
+                  <div className="text-xs text-neutral-500 mt-2 text-right">
+                {title.length}/300
+              </div>
+            </div>
+            
+            {/* Content based on post type */}
+            {postType === "text" && (
+              <div>
+                    <label htmlFor="content" className="block text-sm font-medium mb-2 text-neutral-300">
+                  Text (optional)
+                </label>
+                <textarea
+                  id="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                      className="w-full px-4 py-3 border border-neutral-700 rounded-md bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder-neutral-500"
+                  placeholder="Text (optional)"
+                      rows={8}
+                />
+              </div>
+            )}
+            
+            {postType === "image" && (
+              <div>
+                    <label htmlFor="imageUrl" className="block text-sm font-medium mb-2 text-neutral-300">
+                  Image URL
+                </label>
+                <input
+                  id="imageUrl"
+                  type="url"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                      className="w-full px-4 py-3 border border-neutral-700 rounded-md bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder-neutral-500"
+                  placeholder="https://example.com/image.jpg"
+                  required
+                />
+                
+                {imageUrl && (
+                      <div className="mt-3 p-3 border border-neutral-700 rounded-md bg-neutral-800">
+                    <img 
+                      src={imageUrl} 
+                      alt="Preview" 
+                      className="max-h-64 mx-auto object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=Invalid+Image+URL';
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {postType === "link" && (
+              <div>
+                    <label htmlFor="linkUrl" className="block text-sm font-medium mb-2 text-neutral-300">
+                  URL
+                </label>
+                <input
+                  id="linkUrl"
+                  type="url"
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                      className="w-full px-4 py-3 border border-neutral-700 rounded-md bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder-neutral-500"
+                  placeholder="https://example.com"
+                  required
+                />
+              </div>
+            )}
+            
+                <div className="pt-4 flex justify-end space-x-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate("/")}
+                    className="bg-transparent border-neutral-600 text-neutral-300 hover:bg-neutral-800"
+              >
+                Cancel
+              </Button>
+              
+              <Button
+                type="submit"
+                isLoading={isSubmitting}
+                    className="bg-primary-500 hover:bg-primary-600 text-white"
+              >
+                Post
+              </Button>
+            </div>
+          </form>
+            </div>
         </div>
-        
+      </div>
+      
         {/* Posting Guidelines - Right Side */}
         <div className="md:w-72 lg:w-80 h-fit">
           <div className="bg-neutral-900 rounded-lg border border-neutral-800 overflow-hidden sticky top-20">

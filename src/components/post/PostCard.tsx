@@ -64,7 +64,7 @@ export const PostCard = ({ post }: PostCardProps) => {
                 <img 
                   src={post.imageUrl} 
                   alt={post.title} 
-                  className="w-full object-cover transform hover:scale-105 transition-transform duration-300"
+                  className="w-full object-cover"
                   loading="lazy"
                 />
               </div>

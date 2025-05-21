@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getPostById, getPostComments } from "../data/dummyData";
+import { getPostById, getPostComments, addComment } from "../data/dummyData";
 import { CommentList } from "../components/post/CommentList";
 import { PostContent } from "../components/post/PostContent";
 import { Button } from "../components/ui/Button";
 import { useAuth } from "../hooks/useAuth";
+import { Comment } from "../types/Comment";
 
 export const PostDetailPage = () => {
   const { postId, subreddit } = useParams<{ postId: string; subreddit: string }>();
@@ -12,14 +13,23 @@ export const PostDetailPage = () => {
   
   const [isLoading, setIsLoading] = useState(true);
   const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Fetch post and comments
   const post = postId ? getPostById(postId) : undefined;
-  const comments = postId ? getPostComments(postId) : [];
   
+  // Load comments when postId changes
   useEffect(() => {
-    // Simulate loading state
+    if (!postId) return;
+    
     setIsLoading(true);
+    
+    // Get comments for this post
+    const postComments = getPostComments(postId);
+    setComments(postComments);
+    
+    // Simulate loading delay
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -27,16 +37,35 @@ export const PostDetailPage = () => {
     return () => clearTimeout(timer);
   }, [postId]);
   
-  const handleSubmitComment = (e: React.FormEvent) => {
+  const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || !user || !postId || isSubmitting) return;
     
-    // In a real app, we would make an API call here
-    console.log("Submitting comment:", commentText);
+    setIsSubmitting(true);
     
-    // Clear the input
-    setCommentText("");
+    try {
+      // Add comment using our storage service
+      const newComment = addComment({
+        postId,
+        content: commentText,
+        author: user.username,
+        authorId: user.id,
+        level: 0,
+      });
+      
+      console.log("Comment added:", newComment);
+      
+      // Update the comments list with the new comment
+      setComments(prevComments => [...prevComments, newComment]);
+      
+      // Clear the input
+      setCommentText("");
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   if (!post && !isLoading) {
@@ -81,12 +110,14 @@ export const PostDetailPage = () => {
                     placeholder="What are your thoughts?"
                     className="w-full p-3 border border-neutral-300 dark:border-neutral-700 rounded-md bg-white dark:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-neutral-800 dark:text-neutral-200"
                     rows={4}
+                    disabled={isSubmitting}
                   ></textarea>
                 </div>
                 <div className="flex justify-end">
                   <Button 
                     type="submit" 
-                    disabled={!commentText.trim()}
+                    disabled={!commentText.trim() || isSubmitting}
+                    isLoading={isSubmitting}
                   >
                     Comment
                   </Button>
