@@ -95,14 +95,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setIsLoading(true);
 
-      // First check if username is available
+      // Check if username is available using maybeSingle() instead of single()
       const { data: existingUser, error: checkError } = await supabase
         .from("users")
         .select("username")
         .eq("username", username)
-        .single();
+        .maybeSingle();
 
-      if (checkError && checkError.code !== "PGRST116") {
+      if (checkError) {
         throw new Error("Error checking username availability");
       }
 
@@ -130,9 +130,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       ]);
 
       if (profileError) {
-        // If profile creation fails, attempt to delete the auth user
-        await supabase.auth.admin.deleteUser(authData.user.id);
-        throw profileError;
+        // Instead of trying to delete the auth user, just throw the error
+        throw new Error("Failed to create user profile. Please try again.");
       }
 
       // Fetch the complete user profile
