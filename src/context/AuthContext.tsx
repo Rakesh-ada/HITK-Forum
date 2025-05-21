@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (data) setUser(data as User);
     } catch (error) {
       console.error("Error fetching user profile:", error);
+      setUser(null);
     }
   };
 
@@ -93,13 +94,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   ): Promise<boolean> => {
     try {
       setIsLoading(true);
+
+      // First check if username is available
+      const { data: existingUser, error: checkError } = await supabase
+        .from("users")
+        .select("username")
+        .eq("username", username)
+        .single();
+
+      if (checkError && checkError.code !== "PGRST116") {
+        throw new Error("Error checking username availability");
+      }
+
+      if (existingUser) {
+        throw new Error("Username already taken");
+      }
+
+      // Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (authError) throw authError;
-      if (!authData.user) return false;
+      if (!authData.user) throw new Error("Failed to create user");
 
       // Create user profile
       const { error: profileError } = await supabase.from("users").insert([
@@ -111,9 +129,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       ]);
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        // If profile creation fails, attempt to delete the auth user
+        await supabase.auth.admin.deleteUser(authData.user.id);
+        throw profileError;
+      }
+
+      // Fetch the complete user profile
+      await fetchUserProfile(authData.user.id);
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error registering:", error);
       throw error;
     } finally {
